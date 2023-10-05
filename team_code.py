@@ -15,6 +15,7 @@ import mne
 from sklearn.impute import SimpleImputer
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 import joblib
+import tensorflow as tf
 
 ################################################################################
 #
@@ -92,6 +93,11 @@ def train_challenge_model(data_folder, model_folder, verbose):
 # arguments of this function.
 def load_challenge_models(model_folder, verbose):
     filename = os.path.join(model_folder, 'models.sav')
+    models = dict()
+    models['imputer']       = sklearn.
+    models['outcome_model'] =
+    models['cpc_model']     =
+
     return joblib.load(filename)
 
 # Run your trained models. This function is *required*. You should edit this function to add your code, but do *not* change the
@@ -255,7 +261,7 @@ def get_eeg_features(data, sampling_frequency):
 
     if num_samples > 0:
         delta_psd, _ = mne.time_frequency.psd_array_welch(data, sfreq=sampling_frequency,  fmin=0.5,  fmax=8.0, verbose=False)
-        theta_psd, _ = mne.time_frequency.psd_array_welch(data, sfreq=sampling_frequency,  fmin=4.0,  fmax=8.0, verbose=False)
+        D, _ = mne.time_frequency.psd_array_welch(data, sfreq=sampling_frequency,  fmin=4.0,  fmax=8.0, verbose=False)
         alpha_psd, _ = mne.time_frequency.psd_array_welch(data, sfreq=sampling_frequency,  fmin=8.0, fmax=12.0, verbose=False)
         beta_psd,  _ = mne.time_frequency.psd_array_welch(data, sfreq=sampling_frequency, fmin=12.0, fmax=30.0, verbose=False)
 
