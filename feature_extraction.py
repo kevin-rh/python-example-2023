@@ -4,7 +4,7 @@ import mne_features as mne_f
 import antropy as ant
 from mne_features.feature_extraction import FeatureExtractor, extract_features
 
-class FeatureExtractor:
+class FeatureExtraction:
     def __init__(self,
                  sfreq=100,
                  ch_names=['Fp1', 'Fp2', 'F3', 'F4', \
@@ -13,12 +13,12 @@ class FeatureExtractor:
                     'T3', 'T4', 'T5', 'T6', \
                     'Fz', 'Cz', 'Pz'],
                 ):
-
-        self.sfreq = sfreq
-
-        self.ch_names = ch_names
         
-        self.mne_feature_functions = [
+        self.extract_features = mne_f.feature_extraction.extract_features
+
+        self._sfreq = sfreq
+        self._ch_names = ch_names
+        self._mne_feature_functions = [
             # Time domain
             "ptp_amp",
             "rms",
@@ -83,18 +83,18 @@ class FeatureExtractor:
                 x_features.to_csv('features.csv', mode='w', header=True)
             else:
                 x_features.to_csv('features.csv', mode='a', header=False)
-
+    
     def get_params(self):
         freq_bands = np.array([0.5, 4.0, 8.0, 13.0, 30.0, 49.9])
         params = {'pow_freq_bands__freq_bands': freq_bands, "energy_freq_bands__freq_bands": freq_bands}
         return params
 
     def get_sfreq(self):
-        return self.sfreq
+        return self._sfreq
 
     def get_ch_names(self):
 
-        return self.ch_names
+        return self._ch_names
 
     def get_feature_names(self):
         names = list()
@@ -109,4 +109,4 @@ class FeatureExtractor:
 
 
     def get_feature_functions(self):
-        return self.mne_feature_functions
+        return self._mne_feature_functions

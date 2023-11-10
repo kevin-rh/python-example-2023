@@ -168,6 +168,8 @@ def preprocess_data(data, sampling_frequency, utility_frequency):
 
     return data, resampling_frequency
 
+
+
 # Extract features.
 def get_features(data_folder, patient_id):
     # Load patient data.
@@ -179,7 +181,12 @@ def get_features(data_folder, patient_id):
     patient_features = get_patient_features(patient_metadata)
 
     # Extract EEG features.
-    eeg_channels = ['F3', 'P3', 'F4', 'P4']
+    eeg_channels = ['Fp1', 'Fp2', 'F3', 'F4', \
+                    'C3', 'C4', 'P3', 'P4', \
+                    'O1', 'O2', 'F7', 'F8', \
+                    'T3', 'T4', 'T5', 'T6', \
+                    'Fz', 'Cz', 'Pz']
+                    
     group = 'EEG'
 
     if num_recordings > 0:
@@ -251,24 +258,39 @@ def get_patient_features(data):
 
     return features
 
+from feature_extraction import FeatureExtraction
+
 # Extract features from the EEG data.
 def get_eeg_features(data, sampling_frequency):
     num_channels, num_samples = np.shape(data)
 
+    FE = FeatureExtraction()
     if num_samples > 0:
-        delta_psd, _ = mne.time_frequency.psd_array_welch(data, sfreq=sampling_frequency,  fmin=0.5,  fmax=8.0, verbose=False)
-        theta_psd, _ = mne.time_frequency.psd_array_welch(data, sfreq=sampling_frequency,  fmin=4.0,  fmax=8.0, verbose=False)
-        alpha_psd, _ = mne.time_frequency.psd_array_welch(data, sfreq=sampling_frequency,  fmin=8.0, fmax=12.0, verbose=False)
-        beta_psd,  _ = mne.time_frequency.psd_array_welch(data, sfreq=sampling_frequency, fmin=12.0, fmax=30.0, verbose=False)
+        # delta_psd, _ = mne.time_frequency.psd_array_welch(data, sfreq=sampling_frequency,  fmin=0.5,  fmax=8.0, verbose=False)
+        # theta_psd, _ = mne.time_frequency.psd_array_welch(data, sfreq=sampling_frequency,  fmin=4.0,  fmax=8.0, verbose=False)
+        # alpha_psd, _ = mne.time_frequency.psd_array_welch(data, sfreq=sampling_frequency,  fmin=8.0, fmax=12.0, verbose=False)
+        # beta_psd,  _ = mne.time_frequency.psd_array_welch(data, sfreq=sampling_frequency, fmin=12.0, fmax=30.0, verbose=False)
 
-        delta_psd_mean = np.nanmean(delta_psd, axis=1)
-        theta_psd_mean = np.nanmean(theta_psd, axis=1)
-        alpha_psd_mean = np.nanmean(alpha_psd, axis=1)
-        beta_psd_mean  = np.nanmean(beta_psd,  axis=1)
+        # delta_psd_mean = np.nanmean(delta_psd, axis=1)
+        # theta_psd_mean = np.nanmean(theta_psd, axis=1)
+        # alpha_psd_mean = np.nanmean(alpha_psd, axis=1)
+        # beta_psd_mean  = np.nanmean(beta_psd,  axis=1)
+        data = data[np.newaxis, :]
+        features_panda = FE.extract_features(data, 
+                            sfreq=sampling_frequency, 
+                            selected_funcs=FE.get_feature_functions(), 
+                            funcs_params=FE.get_params(),
+                            n_jobs=1, 
+                            ch_names=FE.get_ch_names(), 
+                            return_as_df=True)
+        
+        features = features_panda.values.flatten().T
+        headers = features_panda.columns
+
     else:
         delta_psd_mean = theta_psd_mean = alpha_psd_mean = beta_psd_mean = float('nan') * np.ones(num_channels)
 
-    features = np.array((delta_psd_mean, theta_psd_mean, alpha_psd_mean, beta_psd_mean)).T
+    # features = np.array((delta_psd_mean, theta_psd_mean, alpha_psd_mean, beta_psd_mean)).T
 
     return features
 
